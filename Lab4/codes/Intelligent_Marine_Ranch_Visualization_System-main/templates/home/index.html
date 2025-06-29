@@ -1,0 +1,724 @@
+{% extends 'layouts/base.html' %}
+
+{% block title %} 仪表盘 {% endblock title %}
+
+<!-- Specific CSS goes HERE -->
+{% block stylesheets %}{% endblock stylesheets %}
+
+{% block content %}
+
+  <div class="min-height-300 bg-primary position-absolute w-100"></div>
+    
+  {% include "includes/sidenav.html" %}
+
+  <main class="main-content position-relative border-radius-lg ">
+
+    {% include "includes/navigation.html" %}
+
+    <div class="container-fluid py-4">
+
+      <div class="row mt-4">
+        <div class="col mb-4">
+          <div class="card bg-gradient-dark text-white">
+            <div class="card-header bg-transparent">
+              <h6 class="text-white mb-0">水文气象</h6>
+            </div>
+            <div class="card-body">
+              <div class="row">
+                <!-- 第一行 -->
+                <div class="col-md-4 mb-4">
+                  <div class="stats-card">
+                    <div class="stats-card-body">
+                      <p class="stats-title mb-1">电池电压</p>
+                      <h4 class="stats-value mb-2">25.90 V</h4>
+                      <div class="stats-change">
+                        <span class="text-success">+15% 较昨日</span>
+                      </div>
+                      <div class="stats-icon">
+                        <i class="ni ni-button-power"></i>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                
+                <div class="col-md-4 mb-4">
+                  <div class="stats-card">
+                    <div class="stats-card-body">
+                      <p class="stats-title mb-1">盐度</p>
+                      <h4 class="stats-value mb-2">34.16 %</h4>
+                      <div class="stats-change">
+                        <span class="text-success">+3% 较昨日</span>
+                      </div>
+                      <div class="stats-icon">
+                        <i class="ni ni-sound-wave"></i>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="col-md-4 mb-4">
+                  <div class="stats-card">
+                    <div class="stats-card-body">
+                      <p class="stats-title mb-1">溶解氧</p>
+                      <h4 class="stats-value mb-2">0.00 mg/L</h4>
+                      <div class="stats-change">
+                        <span class="text-danger">-2% 较昨日</span>
+                      </div>
+                      <div class="stats-icon">
+                        <i class="ni ni-air-baloon"></i>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- 第二行 -->
+                <div class="col-md-4">
+                  <div class="stats-card">
+                    <div class="stats-card-body">
+                      <p class="stats-title mb-1">浊度</p>
+                      <h4 class="stats-value mb-2">2.05 NTU</h4>
+                      <div class="stats-change">
+                        <span class="text-success">+5% 较昨日</span>
+                      </div>
+                      <div class="stats-icon">
+                        <i class="ni ni-world"></i>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="col-md-4">
+                  <div class="stats-card">
+                    <div class="stats-card-body">
+                      <p class="stats-title mb-1">pH</p>
+                      <h4 class="stats-value mb-2">8.37</h4>
+                      <div class="stats-change">
+                        <span class="text-warning">0% 较昨日</span>
+                      </div>
+                      <div class="stats-icon">
+                        <i class="ni ni-atom"></i>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="col-md-4">
+                  <div class="stats-card">
+                    <div class="stats-card-body">
+                      <p class="stats-title mb-1">水温</p>
+                      <h4 class="stats-value mb-2">15 °C</h4>
+                      <div class="stats-change">
+                        <span class="text-success">+4% 较昨日</span>
+                      </div>
+                      <div class="stats-icon">
+                        <i class="ni ni-ruler-pencil"></i>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-4 mb-4">
+          <div class="card h-100">
+            <div class="card-header">
+              <h6 class="mb-0">视频展示</h6>
+            </div>
+            <div class="card-body d-flex align-items-center justify-content-center">
+              <!-- 轮播容器 -->
+              <div id="videoCarousel" class="carousel slide" data-bs-ride="carousel">
+                <div class="carousel-inner" id="carouselVideos">
+                  <!-- 视频项会通过JS动态加载 -->
+                </div>
+                <button class="carousel-control-prev" type="button" data-bs-target="#videoCarousel" data-bs-slide="prev">
+                  <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                  <span class="visually-hidden">Previous</span>
+                </button>
+                <button class="carousel-control-next" type="button" data-bs-target="#videoCarousel" data-bs-slide="next">
+                  <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                  <span class="visually-hidden">Next</span>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <script>
+          // 使用相对路径获取视频文件路径
+          const videoPaths = [
+            'static/assets/media/fish/fish1.mp4',
+            'static/assets/media/fish/fish2.mp4',
+            'static/assets/media/fish/fish3.mp4',
+            'static/assets/media/fish/fish4.mp4',
+            // 在此添加其他视频文件路径
+          ];
+
+          const carouselContainer = document.getElementById('carouselVideos');
+
+          videoPaths.forEach((videoPath, index) => {
+            const videoItem = document.createElement('div');
+            videoItem.classList.add('carousel-item');
+            if (index === 0) {
+              videoItem.classList.add('active');
+            }
+
+            const videoElement = document.createElement('video');
+            videoElement.classList.add('d-block', 'w-100');
+            videoElement.src = videoPath;  // 使用相对路径
+            videoElement.controls = true;
+            videoElement.autoplay = true;  // 自动播放
+            videoElement.muted = true;  // 可以根据需求静音播放
+            videoElement.loop = false;  // 不循环播放，播放完后自动切换
+
+            // 当视频播放结束时，切换到下一个视频
+            videoElement.addEventListener('ended', () => {
+              const nextIndex = (index + 1) % videoPaths.length;  // 循环播放
+              const nextVideoItem = carouselContainer.children[nextIndex];
+              const carousel = document.getElementById('videoCarousel');
+              const carouselInstance = new bootstrap.Carousel(carousel);  // 使用Bootstrap Carousel
+              carouselInstance.to(nextIndex);  // 切换到下一个视频
+            });
+
+            videoItem.appendChild(videoElement);
+            carouselContainer.appendChild(videoItem);
+          });
+        </script>
+      </div>
+
+      <!-- 在 "设备情况" 卡片后面添加新的行 -->
+      <div class="row mt-4">
+        <div class="col-12">
+          <div class="card">
+            <div class="card-header pb-0 p-3">
+              <div class="d-flex justify-content-between">
+                <h6 class="mb-0">渔场定位</h6>
+              </div>
+            </div>
+            <div class="card-body p-3">
+              <div id="mapContainer" style="height: 400px; width: 100%; border-radius: 10px;"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="row mt-4">
+        <div class="col-lg-7 mb-lg-0 mb-4">
+          <div class="card z-index-2 h-100">
+            <div class="card-header pb-0 pt-3 bg-transparent">
+              <h6 class="text-capitalize">鱼群总览</h6>
+              <p class="text-sm mb-0">
+                <i class="fa fa-arrow-up text-success"></i>
+                <span class="font-weight-bold">4% 较</span> 2024年
+              </p>
+            </div>
+            <div class="card-body p-3">
+              <div class="chart">
+                <canvas id="chart-line" class="chart-canvas" height="300"></canvas>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="col-lg-5">
+          <div class="card card-carousel overflow-hidden h-100 p-0">
+            <div id="carouselExampleCaptions" class="carousel slide h-100" data-bs-ride="carousel">
+              <div class="carousel-inner border-radius-lg h-100">
+                <div class="carousel-item h-100 active" style="background-image: url('{{ config.ASSETS_ROOT }}/img/carousel-1.jpg');
+      background-size: cover;">
+                  <div class="carousel-caption d-none d-md-block bottom-0 text-start start-0 ms-5">
+                    <h5 class="text-black mb-1">专业的水产养殖解决方案</h5>
+                    <p>There’s nothing I really wanted to do in life that I wasn’t able to get good at.</p>
+                  </div>
+                </div>
+                <div class="carousel-item h-100" style="background-image: url('{{ config.ASSETS_ROOT }}/img/carousel-2.jpg');
+      background-size: cover;">
+                  <div class="carousel-caption d-none d-md-block bottom-0 text-start start-0 ms-5">
+                    <h5 class="text-white mb-1">快速搭建您的自动化养殖系统</h5>
+                    <p>That’s my skill. I’m not really specifically talented at anything except for the ability to learn.</p>
+                  </div>
+                </div>
+                <div class="carousel-item h-100" style="background-image: url('{{ config.ASSETS_ROOT }}/img/carousel-3.jpg');
+      background-size: cover;">
+                  <div class="carousel-caption d-none d-md-block bottom-0 text-start start-0 ms-5">
+                    <h5 class="text-white mb-1">我们竭诚为您服务</h5>
+                    <p>Don’t be afraid to be wrong because you can’t learn anything from a compliment.</p>
+                  </div>
+                </div>
+              </div>
+              <button class="carousel-control-prev w-5 me-3" type="button" data-bs-target="#carouselExampleCaptions" data-bs-slide="prev">
+                <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                <span class="visually-hidden">Previous</span>
+              </button>
+              <button class="carousel-control-next w-5 me-3" type="button" data-bs-target="#carouselExampleCaptions" data-bs-slide="next">
+                <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                <span class="visually-hidden">Next</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="row mt-4">
+        <div class="col-lg-7 mb-lg-0 mb-4">
+          <div class="card ">
+            <div class="card-header pb-0 p-3">
+              <div class="d-flex justify-content-between">
+                <h6 class="mb-2">各渔场概况</h6>
+              </div>
+            </div>
+            <div class="table-responsive">
+              <table class="table align-items-center ">
+                <tbody>
+                  <tr>
+                    <td class="w-30">
+                      <div class="d-flex px-2 py-1 align-items-center">
+                        <div>
+                          <img src="{{ url_for('static', filename='assets/img/icons/flags/US.png') }}" alt="Country flag">
+                        </div>
+                        <div class="ms-4">
+                          <p class="text-xs font-weight-bold mb-0">渔场:</p>
+                          <h6 class="text-sm mb-0">舟山渔场</h6>
+                        </div>
+                      </div>
+                    </td>
+                    <td>
+                      <div class="text-center">
+                        <p class="text-xs font-weight-bold mb-0">鱼尾数:</p>
+                        <h6 class="text-sm mb-0">107458尾</h6>
+                      </div>
+                    </td>
+                    <td>
+                      <div class="text-center">
+                        <p class="text-xs font-weight-bold mb-0">水质指数:</p>
+                        <h6 class="text-sm mb-0">97分</h6>
+                      </div>
+                    </td>
+                    <td class="align-middle text-sm">
+                      <div class="col text-center">
+                        <p class="text-xs font-weight-bold mb-0">当前预警:</p>
+                        <h6 class="text-sm mb-0">0条</h6>
+                      </div>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td class="w-30">
+                      <div class="d-flex px-2 py-1 align-items-center">
+                        <div>
+                          <img src="{{ url_for('static', filename='assets/img/icons/flags/DE.png') }}" alt="Country flag">
+                        </div>
+                        <div class="ms-4">
+                          <p class="text-xs font-weight-bold mb-0">渔场:</p>
+                          <h6 class="text-sm mb-0">天津渔场</h6>
+                        </div>
+                      </div>
+                    </td>
+                    <td>
+                      <div class="text-center">
+                        <p class="text-xs font-weight-bold mb-0">鱼尾数:</p>
+                        <h6 class="text-sm mb-0">215784尾</h6>
+                      </div>
+                    </td>
+                    <td>
+                      <div class="text-center">
+                        <p class="text-xs font-weight-bold mb-0">水质指数:</p>
+                        <h6 class="text-sm mb-0">87分</h6>
+                      </div>
+                    </td>
+                    <td class="align-middle text-sm">
+                      <div class="col text-center">
+                        <p class="text-xs font-weight-bold mb-0">当前预警:</p>
+                        <h6 class="text-sm mb-0">1条</h6>
+                      </div>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td class="w-30">
+                      <div class="d-flex px-2 py-1 align-items-center">
+                        <div>
+                          <img src="{{ url_for('static', filename='assets/img/icons/flags/GB.png') }}" alt="Country flag">
+                        </div>
+                        <div class="ms-4">
+                          <p class="text-xs font-weight-bold mb-0">渔场:</p>
+                          <h6 class="text-sm mb-0">福建渔场</h6>
+                        </div>
+                      </div>
+                    </td>
+                    <td>
+                      <div class="text-center">
+                        <p class="text-xs font-weight-bold mb-0">鱼尾数:</p>
+                        <h6 class="text-sm mb-0">107,243尾</h6>
+                      </div>
+                    </td>
+                    <td>
+                      <div class="text-center">
+                        <p class="text-xs font-weight-bold mb-0">水质指数:</p>
+                        <h6 class="text-sm mb-0">89分</h6>
+                      </div>
+                    </td>
+                    <td class="align-middle text-sm">
+                      <div class="col text-center">
+                        <p class="text-xs font-weight-bold mb-0">当前预警:</p>
+                        <h6 class="text-sm mb-0">1条</h6>
+                      </div>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td class="w-30">
+                      <div class="d-flex px-2 py-1 align-items-center">
+                        <div>
+                          <img src="{{ url_for('static', filename='assets/img/icons/flags/BR.png') }}" alt="Country flag">
+                        </div>
+                        <div class="ms-4">
+                          <p class="text-xs font-weight-bold mb-0">渔场:</p>
+                          <h6 class="text-sm mb-0">黄渤海渔场</h6>
+                        </div>
+                      </div>
+                    </td>
+                    <td>
+                      <div class="text-center">
+                        <p class="text-xs font-weight-bold mb-0">鱼尾数:</p>
+                        <h6 class="text-sm mb-0">270,341尾</h6>
+                      </div>
+                    </td>
+                    <td>
+                      <div class="text-center">
+                        <p class="text-xs font-weight-bold mb-0">水质指数:</p>
+                        <h6 class="text-sm mb-0">83分</h6>
+                      </div>
+                    </td>
+                    <td class="align-middle text-sm">
+                      <div class="col text-center">
+                        <p class="text-xs font-weight-bold mb-0">当前预警:</p>
+                        <h6 class="text-sm mb-0">2条</h6>
+                      </div>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+        <div class="col-lg-5">
+          <div class="card">
+            <div class="card-header pb-0 p-3">
+              <h6 class="mb-0">设备情况</h6>
+            </div>
+            <div class="card-body p-3">
+              <ul class="list-group">
+                <li class="list-group-item border-0 d-flex justify-content-between ps-0 mb-2 border-radius-lg">
+                  <div class="d-flex align-items-center">
+                    <div class="icon icon-shape icon-sm me-3 bg-gradient-dark shadow text-center">
+                      <i class="ni ni-mobile-button text-white opacity-10"></i>
+                    </div>
+                    <div class="d-flex flex-column">
+                      <h6 class="mb-1 text-dark text-sm">摄像头</h6>
+                      <span class="text-xs">250 in stock, <span class="font-weight-bold">346+ sold</span></span>
+                    </div>
+                  </div>
+                  <div class="d-flex">
+                    <button class="btn btn-link btn-icon-only btn-rounded btn-sm text-dark icon-move-right my-auto"><i class="ni ni-bold-right" aria-hidden="true"></i></button>
+                  </div>
+                </li>
+                <li class="list-group-item border-0 d-flex justify-content-between ps-0 mb-2 border-radius-lg">
+                  <div class="d-flex align-items-center">
+                    <div class="icon icon-shape icon-sm me-3 bg-gradient-dark shadow text-center">
+                      <i class="ni ni-tag text-white opacity-10"></i>
+                    </div>
+                    <div class="d-flex flex-column">
+                      <h6 class="mb-1 text-dark text-sm">水氧检测器</h6>
+                      <span class="text-xs">123 closed, <span class="font-weight-bold">15 open</span></span>
+                    </div>
+                  </div>
+                  <div class="d-flex">
+                    <button class="btn btn-link btn-icon-only btn-rounded btn-sm text-dark icon-move-right my-auto"><i class="ni ni-bold-right" aria-hidden="true"></i></button>
+                  </div>
+                </li>
+                <li class="list-group-item border-0 d-flex justify-content-between ps-0 mb-2 border-radius-lg">
+                  <div class="d-flex align-items-center">
+                    <div class="icon icon-shape icon-sm me-3 bg-gradient-dark shadow text-center">
+                      <i class="ni ni-box-2 text-white opacity-10"></i>
+                    </div>
+                    <div class="d-flex flex-column">
+                      <h6 class="mb-1 text-dark text-sm">温度报警器</h6>
+                      <span class="text-xs">1 is active, <span class="font-weight-bold">40 closed</span></span>
+                    </div>
+                  </div>
+                  <div class="d-flex">
+                    <button class="btn btn-link btn-icon-only btn-rounded btn-sm text-dark icon-move-right my-auto"><i class="ni ni-bold-right" aria-hidden="true"></i></button>
+                  </div>
+                </li>
+                <li class="list-group-item border-0 d-flex justify-content-between ps-0 border-radius-lg">
+                  <div class="d-flex align-items-center">
+                    <div class="icon icon-shape icon-sm me-3 bg-gradient-dark shadow text-center">
+                      <i class="ni ni-satisfied text-white opacity-10"></i>
+                    </div>
+                    <div class="d-flex flex-column">
+                      <h6 class="mb-1 text-dark text-sm">自动饲喂器</h6>
+                      <span class="text-xs font-weight-bold">+ 430</span>
+                    </div>
+                  </div>
+                  <div class="d-flex">
+                    <button class="btn btn-link btn-icon-only btn-rounded btn-sm text-dark icon-move-right my-auto"><i class="ni ni-bold-right" aria-hidden="true"></i></button>
+                  </div>
+                </li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {% include "includes/footer.html" %}
+
+    </div>
+  
+  </main>  
+
+{% endblock content %}
+
+<!-- Specific JS goes HERE --> 
+{% block javascripts %}
+  
+  <script src="{{ url_for('static', filename='assets/js/plugins/chartjs.min.js') }}"></script>
+  <script>
+    var ctx1 = document.getElementById("chart-line").getContext("2d");
+
+    var gradientStroke1 = ctx1.createLinearGradient(0, 230, 0, 50);
+
+    gradientStroke1.addColorStop(1, 'rgba(94, 114, 228, 0.2)');
+    gradientStroke1.addColorStop(0.2, 'rgba(94, 114, 228, 0.0)');
+    gradientStroke1.addColorStop(0, 'rgba(94, 114, 228, 0)');
+    new Chart(ctx1, {
+      type: "line",
+      data: {
+        labels: ["四月", "五月", "六月", "七月", "八月", "九月", "十月", "十一月", "十二月"],
+        datasets: [{
+          label: "鱼尾数",
+          tension: 0.4,
+          borderWidth: 0,
+          pointRadius: 0,
+          borderColor: "#5e72e4",
+          backgroundColor: gradientStroke1,
+          borderWidth: 3,
+          fill: true,
+          data: [879541, 887546, 899751, 905421, 914578, 928645, 934876, 947568, 960124],
+          maxBarThickness: 6
+
+        }],
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: {
+            display: false,
+          }
+        },
+        interaction: {
+          intersect: false,
+          mode: 'index',
+        },
+        scales: {
+          y: {
+            grid: {
+              drawBorder: false,
+              display: true,
+              drawOnChartArea: true,
+              drawTicks: false,
+              borderDash: [5, 5]
+            },
+            ticks: {
+              display: true,
+              padding: 10,
+              color: '#fbfbfb',
+              font: {
+                size: 11,
+                family: "Open Sans",
+                style: 'normal',
+                lineHeight: 2
+              },
+            }
+          },
+          x: {
+            grid: {
+              drawBorder: false,
+              display: false,
+              drawOnChartArea: false,
+              drawTicks: false,
+              borderDash: [5, 5]
+            },
+            ticks: {
+              display: true,
+              color: '#ccc',
+              padding: 20,
+              font: {
+                size: 11,
+                family: "Open Sans",
+                style: 'normal',
+                lineHeight: 2
+              },
+            }
+          },
+        },
+      },
+    });
+  </script>
+
+<style>
+.stats-card {
+  background: rgba(13, 19, 53, 0.95);
+  border-radius: 15px;
+  padding: 20px;
+  position: relative;
+  overflow: hidden;
+  height: 100%;
+}
+
+.stats-card-body {
+  position: relative;
+  z-index: 1;
+}
+
+.stats-title {
+  color: #8898aa;
+  font-size: 0.875rem;
+  font-weight: 500;
+}
+
+.stats-value {
+  color: #fff;
+  font-size: 1.5rem;
+  font-weight: 600;
+}
+
+.stats-change {
+  font-size: 0.875rem;
+}
+
+.stats-icon {
+  position: absolute;
+  top: 15px;
+  right: 15px;
+  width: 48px;
+  height: 48px;
+  margin-right: -20px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.stats-icon i {
+  font-size: 1.5rem;
+  color: rgba(255, 255, 255, 0.7);
+}
+
+.text-success {
+  color: #2dce89 !important;
+}
+
+.text-danger {
+  color: #f5365c !important;
+}
+
+.text-warning {
+  color: #fb6340 !important;
+}
+</style>
+
+<script type="text/javascript" src="http://api.map.baidu.com/api?v=2.0&ak=SWUNKzqHFKT2cMYP1DdbCJEAYl2XRyt0"></script>
+<script>
+  // 初始化地图
+  var map = new BMap.Map("mapContainer");
+  // 设置中心点坐标和地图级别
+  var point = new BMap.Point(116.404, 39.915);
+  map.centerAndZoom(point, 11);
+  // 添加地图类型控件
+  map.addControl(new BMap.MapTypeControl());
+  // 设置地图样式
+  map.setMapStyle({
+    style: 'midnight'  // 设置地图风格为午夜蓝
+  });
+  
+  // 添加缩放控件
+  map.addControl(new BMap.ScaleControl());
+  map.addControl(new BMap.NavigationControl());
+  
+  // 添加一些示例标记点
+  var markers = [
+    {
+      position: [122.2030363, 29.9873344],
+      title: "舟山渔场",
+      content: "水质良好，设备运行正常"
+    },
+    {
+      position: [117.862367, 39.183018],
+      title: "天津中心渔港码头",
+      content: "鱼群活动正常"
+    },
+    {
+      position: [121.4737, 37.6319],
+      title: "黄渤海渔场",
+      content: "中国最大的近海渔场之一，盛产黄花鱼、带鱼等"
+    },
+    {
+      position: [119.5435, 25.9801],
+      title: "闽东渔场",
+      content: "优质鱼类资源丰富，是重要的水产养殖基地"
+    },
+    {
+      position: [113.5916, 22.2486],
+      title: "珠江口渔场",
+      content: "珍贵鱼种众多，水产养殖发达"
+    },
+    {
+      position: [109.5757, 18.2614],
+      title: "北部湾渔场",
+      content: "热带亚热带鱼类资源丰富，是重要的远洋渔业基地"
+    },
+    {
+      position: [120.1614, 32.5149],
+      title: "长江口渔场",
+      content: "淡水与海水交汇处，生态系统独特"
+    },
+    {
+      position: [119.2965, 26.0745],
+      title: "福州渔场",
+      content: "传统渔业基地，水产品种类丰富"
+    }
+  ];
+  
+  // 创建标记点
+  markers.forEach(function(marker) {
+    var point = new BMap.Point(marker.position[0], marker.position[1]);
+    var mk = new BMap.Marker(point);
+    map.addOverlay(mk);
+    
+    // 创建信息窗口
+    var opts = {
+      width: 200,
+      height: 100,
+      title: marker.title
+    };
+    var infoWindow = new BMap.InfoWindow(marker.content, opts);
+    
+    // 点击标记显示信息窗口
+    mk.addEventListener("click", function(){
+      map.openInfoWindow(infoWindow, point);
+    });
+  });
+</script>
+
+<style>
+.BMap_cpyCtrl {
+  display: none;
+}
+.anchorBL {
+  display: none;
+}
+</style>
+
+
+{% endblock javascripts %}
+

@@ -1,0 +1,763 @@
+{% extends 'layouts/base.html' %}
+
+{% block title %} AI数据助手 {% endblock title %}
+
+{% block stylesheets %}
+<style>
+  .chat-container {
+    height: 500px;
+    overflow-y: auto;
+    padding: 20px;
+    background-color: #f8f9fe;
+    border-radius: 10px;
+  }
+
+  .message {
+    padding: 10px 15px;
+    border-radius: 18px;
+    margin-bottom: 10px;
+    max-width: 75%;
+    word-wrap: break-word;
+  }
+
+  .user-message {
+    background-color: #5e72e4;
+    color: white;
+    margin-left: auto;
+  }
+
+  .assistant-message {
+    background-color: #e9ecef;
+    color: #525f7f;
+  }
+
+  .chat-input {
+    width: 100%;
+    padding: 12px 20px;
+    border: 1px solid #ddd;
+    border-radius: 20px;
+    font-size: 16px;
+  }
+
+  .data-selector {
+    background-color: white;
+    border-radius: 10px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.05);
+    padding: 20px;
+    margin-bottom: 20px;
+  }
+
+  .data-preview {
+    background-color: #2d2d2f;
+    padding: 15px;
+    border-radius: 10px;
+    margin-top: 15px;
+    max-height: 200px;
+    overflow-y: auto;
+  }
+
+  .loader {
+    display: inline-block;
+    width: 20px;
+    height: 20px;
+    border: 3px solid rgba(255, 255, 255, .3);
+    border-radius: 50%;
+    border-top-color: #5e72e4;
+    animation: spin 1s ease-in-out infinite;
+  }
+
+  @keyframes spin {
+    to {
+      transform: rotate(360deg);
+    }
+  }
+
+  .data-badge {
+    display: inline-block;
+    padding: 5px 10px;
+    background-color: #5e72e4;
+    color: white;
+    border-radius: 15px;
+    margin-right: 5px;
+    margin-bottom: 5px;
+    font-size: 0.8rem;
+  }
+
+  .typing-indicator {
+    display: flex;
+    align-items: center;
+  }
+
+  .typing-indicator span {
+    height: 8px;
+    width: 8px;
+    margin: 0 2px;
+    background-color: #9E9EA1;
+    display: block;
+    border-radius: 50%;
+    opacity: 0.4;
+  }
+
+  .typing-indicator span:nth-of-type(1) {
+    animation: 1s blink infinite 0.3333s;
+  }
+
+  .typing-indicator span:nth-of-type(2) {
+    animation: 1s blink infinite 0.6666s;
+  }
+
+  .typing-indicator span:nth-of-type(3) {
+    animation: 1s blink infinite 0.9999s;
+  }
+
+  @keyframes blink {
+    50% {
+      opacity: 1;
+    }
+  }
+</style>
+{% endblock stylesheets %}
+
+{% block content %}
+<div class="min-height-300 bg-primary position-absolute w-100"></div>
+
+{% include "includes/sidenav.html" %}
+
+<main class="main-content position-relative border-radius-lg">
+  {% include "includes/navigation.html" %}
+
+  <div class="container-fluid py-4">
+    <div class="row">
+      <div class="col-lg-4 mb-lg-0 mb-4">
+        <div class="card">
+          <div class="card-header pb-0">
+            <h6>数据选择</h6>
+          </div>
+          <div class="card-body">
+            <!-- 水质数据选择 -->
+            <div class="data-selector mb-4">
+              <h6 class="mb-3">水质数据</h6>
+
+              <div class="mb-3">
+                <label class="form-label">省份</label>
+                <select class="form-control" id="water-province">
+                  <option value="">-- 选择省份 --</option>
+                </select>
+              </div>
+
+              <div class="mb-3">
+                <label class="form-label">流域</label>
+                <select class="form-control" id="water-basin">
+                  <option value="">-- 先选择省份 --</option>
+                </select>
+              </div>
+
+              <div class="mb-3">
+                <label class="form-label">监测站点</label>
+                <select class="form-control" id="water-station">
+                  <option value="">-- 先选择流域 --</option>
+                </select>
+              </div>
+
+              <div class="mb-3">
+                <label class="form-label">月份</label>
+                <select class="form-control" id="water-month">
+                  <option value="">-- 先选择站点 --</option>
+                </select>
+              </div>
+
+              <div class="mb-3">
+                <label class="form-label">监测参数</label>
+                <select class="form-control" id="water-parameter">
+                  <option value="">-- 先选择月份 --</option>
+                </select>
+              </div>
+
+              <button class="btn btn-sm btn-primary" id="water-load-btn">加载水质数据</button>
+
+              <div class="data-preview" id="water-data-preview" style="display: none;">
+                <p class="text-xs mb-1">数据预览:</p>
+                <div id="water-data-content"></div>
+              </div>
+            </div>
+
+            <!-- 鱼类数据选择 -->
+            <div class="data-selector">
+              <h6 class="mb-3">鱼类数据</h6>
+
+              <div class="mb-3">
+                <label class="form-label">鱼类</label>
+                <select class="form-control" id="fish-species">
+                  <option value="">-- 选择鱼类 --</option>
+                </select>
+              </div>
+
+              <div class="mb-3">
+                <label class="form-label">参数</label>
+                <select class="form-control" id="fish-parameter">
+                  <option value="">-- 选择参数 --</option>
+                </select>
+              </div>
+
+              <button class="btn btn-sm btn-primary" id="fish-load-btn">加载鱼类数据</button>
+
+              <div class="data-preview" id="fish-data-preview" style="display: none;">
+                <p class="text-xs mb-1">数据预览:</p>
+                <div id="fish-data-content"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-lg-8">
+        <div class="card h-100">
+          <div class="card-header pb-0">
+            <div class="d-flex justify-content-between">
+              <h6>AI海洋牧场助手</h6>
+              <div>
+                <span id="selected-data-info"></span>
+              </div>
+            </div>
+          </div>
+          <div class="card-body">
+            <div class="chat-container" id="chat-container">
+              <!-- 欢迎消息 -->
+              <div class="message assistant-message">
+                你好！我是智能海洋牧场助手。你可以向我咨询关于水质数据和鱼类养殖的问题。左侧可选择相关数据来丰富我的回答内容。
+              </div>
+            </div>
+
+            <!-- 显示选择的数据标签 -->
+            <div class="mt-3 mb-3" id="selected-data-badges"></div>
+
+            <!-- 输入区域 -->
+            <div class="d-flex mt-3">
+              <input type="text" class="chat-input" id="chat-input" placeholder="输入你的问题...">
+              <button class="btn btn-primary ms-2" id="send-btn">
+                <i class="fas fa-paper-plane"></i>
+              </button>
+            </div>
+
+            <!-- 提示 -->
+            <div class="mt-3">
+              <p class="text-xs text-muted">提示: 你可以问我关于水质参数趋势分析、不同鱼类的最适宜生长环境、水质对鱼类生长的影响等问题。</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</main>
+{% endblock content %}
+
+{% block javascripts %}
+<script>
+  // 全局变量
+  let selectedWaterData = null;
+  let selectedFishData = null;
+
+  // 初始化
+  document.addEventListener('DOMContentLoaded', function () {
+    // 加载省份列表
+    loadProvinces();
+
+    // 加载鱼类列表
+    loadFishSpecies();
+
+    // 加载参数列表
+    loadFishParameters();
+
+    // 绑定事件
+    document.getElementById('water-province').addEventListener('change', handleProvinceChange);
+    document.getElementById('water-basin').addEventListener('change', handleBasinChange);
+    document.getElementById('water-station').addEventListener('change', handleStationChange);
+    document.getElementById('water-month').addEventListener('change', handleMonthChange);
+
+    document.getElementById('water-load-btn').addEventListener('click', loadWaterData);
+    document.getElementById('fish-load-btn').addEventListener('click', loadFishData);
+
+    document.getElementById('send-btn').addEventListener('click', sendMessage);
+    document.getElementById('chat-input').addEventListener('keypress', function (e) {
+      if (e.key === 'Enter') {
+        sendMessage();
+      }
+    });
+  });
+
+  // 加载省份列表
+  function loadProvinces() {
+    fetch('/dyn_dt/api/water/provinces')
+      .then(response => response.json())
+      .then(data => {
+        if (data.success) {
+          const select = document.getElementById('water-province');
+          select.innerHTML = '<option value="">-- 选择省份 --</option>';
+
+          data.provinces.forEach(province => {
+            const option = document.createElement('option');
+            option.value = province;
+            option.textContent = province;
+            select.appendChild(option);
+          });
+        }
+      })
+      .catch(error => console.error('加载省份列表出错:', error));
+  }
+
+  // 处理省份变更
+  function handleProvinceChange() {
+    const province = document.getElementById('water-province').value;
+
+    if (!province) {
+      document.getElementById('water-basin').innerHTML = '<option value="">-- 先选择省份 --</option>';
+      return;
+    }
+
+    fetch(`/dyn_dt/api/water/basins?province=${province}`)
+      .then(response => response.json())
+      .then(data => {
+        if (data.success) {
+          const select = document.getElementById('water-basin');
+          select.innerHTML = '<option value="">-- 选择流域 --</option>';
+
+          data.basins.forEach(basin => {
+            const option = document.createElement('option');
+            option.value = basin;
+            option.textContent = basin;
+            select.appendChild(option);
+          });
+        }
+      })
+      .catch(error => console.error('加载流域列表出错:', error));
+  }
+
+  // 处理流域变更
+  function handleBasinChange() {
+    const province = document.getElementById('water-province').value;
+    const basin = document.getElementById('water-basin').value;
+
+    if (!province || !basin) {
+      document.getElementById('water-station').innerHTML = '<option value="">-- 先选择流域 --</option>';
+      return;
+    }
+
+    fetch(`/dyn_dt/api/water/stations?province=${province}&basin=${basin}`)
+      .then(response => response.json())
+      .then(data => {
+        if (data.success) {
+          const select = document.getElementById('water-station');
+          select.innerHTML = '<option value="">-- 选择监测站点 --</option>';
+
+          data.stations.forEach(station => {
+            const option = document.createElement('option');
+            option.value = station.name;
+            option.textContent = station.name;
+            select.appendChild(option);
+          });
+        }
+      })
+      .catch(error => console.error('加载站点列表出错:', error));
+  }
+
+  // 处理站点变更
+  function handleStationChange() {
+    const province = document.getElementById('water-province').value;
+    const basin = document.getElementById('water-basin').value;
+    const station = document.getElementById('water-station').value;
+
+    if (!province || !basin || !station) {
+      document.getElementById('water-month').innerHTML = '<option value="">-- 先选择站点 --</option>';
+      return;
+    }
+
+    fetch(`/dyn_dt/api/water/available_months?province=${province}&basin=${basin}&station=${station}`)
+      .then(response => response.json())
+      .then(data => {
+        if (data.success) {
+          const select = document.getElementById('water-month');
+          select.innerHTML = '<option value="">-- 选择月份 --</option>';
+
+          data.available_months.forEach(month => {
+            const option = document.createElement('option');
+            option.value = month;
+            option.textContent = month;
+            select.appendChild(option);
+          });
+        }
+      })
+      .catch(error => console.error('加载月份列表出错:', error));
+  }
+
+  // 处理月份变更
+  function handleMonthChange() {
+    const month = document.getElementById('water-month').value;
+
+    if (!month) {
+      document.getElementById('water-parameter').innerHTML = '<option value="">-- 先选择月份 --</option>';
+      return;
+    }
+
+    // 加载水质参数列表
+    fetch('/dyn_dt/api/water/parameters')
+      .then(response => response.json())
+      .then(data => {
+        if (data.success) {
+          const select = document.getElementById('water-parameter');
+          select.innerHTML = '<option value="">-- 选择参数 --</option>';
+
+          data.parameters.forEach(param => {
+            if (param.id !== '叶绿素α' && param.id !== '藻密度') {
+              const option = document.createElement('option');
+              option.value = param.id;
+              option.textContent = `${param.name} (${param.unit})`;
+              select.appendChild(option);
+            }
+          });
+        }
+      })
+      .catch(error => console.error('加载参数列表出错:', error));
+  }
+
+  // 加载水质数据
+  function loadWaterData() {
+    const province = document.getElementById('water-province').value;
+    const basin = document.getElementById('water-basin').value;
+    const station = document.getElementById('water-station').value;
+    const month = document.getElementById('water-month').value;
+    const parameter = document.getElementById('water-parameter').value;
+
+    if (!province || !basin || !station || !month || !parameter) {
+      alert('请完整选择水质数据筛选条件');
+      return;
+    }
+
+    fetch(`/dyn_dt/api/water/parameter_trend?province=${province}&basin=${basin}&station=${station}&month=${month}&parameter=${parameter}`)
+      .then(response => response.json())
+      .then(data => {
+        if (data.success) {
+          // 保存选择的数据
+          selectedWaterData = {
+            province: province,
+            basin: basin,
+            station: station,
+            month: month,
+            parameter: parameter,
+            statistics: data.statistics,
+            categories: data.categories,
+            unit: data.unit
+          };
+
+          // 展示数据预览
+          document.getElementById('water-data-preview').style.display = 'block';
+
+          // 格式化统计数据
+          let statsHtml = '';
+          if (data.statistics) {
+            statsHtml = `
+                            <p class="mb-0"><strong>统计信息:</strong></p>
+                            <p class="mb-0">平均值: ${formatNumber(data.statistics.mean)} ${data.unit}</p>
+                            <p class="mb-0">最小值: ${formatNumber(data.statistics.min)} ${data.unit}</p>
+                            <p class="mb-0">最大值: ${formatNumber(data.statistics.max)} ${data.unit}</p>
+                            <p class="mb-0">样本数: ${data.statistics.count}</p>
+                        `;
+          }
+
+          // 显示水质类别
+          let categoryHtml = '';
+          if (data.categories && Object.keys(data.categories).length > 0) {
+            categoryHtml = `<p class="mb-0"><strong>水质类别:</strong> `;
+            for (const [category, count] of Object.entries(data.categories)) {
+              categoryHtml += `${category} (${count}次) `;
+            }
+            categoryHtml += `</p>`;
+          }
+
+          document.getElementById('water-data-content').innerHTML = `
+                        <p class="mb-2"><strong>${station} - ${parameter}</strong></p>
+                        ${statsHtml}
+                        ${categoryHtml}
+                    `;
+
+          // 更新选择的数据标签
+          updateSelectedDataBadges();
+        }
+      })
+      .catch(error => console.error('加载水质数据出错:', error));
+  }
+
+  // 加载鱼类物种列表
+  function loadFishSpecies() {
+    fetch('/dyn_dt/api/fish/list')
+      .then(response => response.json())
+      .then(data => {
+        if (data.success) {
+          const select = document.getElementById('fish-species');
+          select.innerHTML = '<option value="">-- 选择鱼类 --</option>';
+
+          data.species.forEach(species => {
+            const option = document.createElement('option');
+            option.value = species;
+            option.textContent = species;
+            select.appendChild(option);
+          });
+        }
+      })
+      .catch(error => console.error('加载鱼类列表出错:', error));
+  }
+
+  // 加载鱼类参数列表
+  function loadFishParameters() {
+    fetch('/dyn_dt/api/fish/parameters')
+      .then(response => response.json())
+      .then(data => {
+        if (data.success) {
+          const select = document.getElementById('fish-parameter');
+          select.innerHTML = '<option value="">-- 选择参数 --</option>';
+
+          data.parameters.forEach(param => {
+            const option = document.createElement('option');
+            option.value = param;
+            option.textContent = param;
+            select.appendChild(option);
+          });
+        }
+      })
+      .catch(error => console.error('加载鱼类参数列表出错:', error));
+  }
+
+  // 加载鱼类数据
+  function loadFishData() {
+    const species = document.getElementById('fish-species').value;
+    const parameter = document.getElementById('fish-parameter').value;
+
+    if (!species || !parameter) {
+      alert('请选择鱼类和参数');
+      return;
+    }
+
+    fetch(`/dyn_dt/api/fish/distribution?species=${species}&parameter=${parameter}`)
+      .then(response => response.json())
+      .then(data => {
+        if (data.success) {
+          // 保存选择的数据
+          selectedFishData = {
+            species: species,
+            parameter: parameter,
+            statistics: data.statistics
+          };
+
+          // 展示数据预览
+          document.getElementById('fish-data-preview').style.display = 'block';
+
+          // 格式化统计数据
+          let statsHtml = '';
+          if (data.statistics) {
+            statsHtml = `
+                            <p class="mb-0"><strong>统计信息:</strong></p>
+                            <p class="mb-0">平均值: ${formatNumber(data.statistics.mean)}</p>
+                            <p class="mb-0">中位数: ${formatNumber(data.statistics.median)}</p>
+                            <p class="mb-0">最小值: ${formatNumber(data.statistics.min)}</p>
+                            <p class="mb-0">最大值: ${formatNumber(data.statistics.max)}</p>
+                            <p class="mb-0">样本数: ${data.statistics.count}</p>
+                        `;
+          }
+
+          document.getElementById('fish-data-content').innerHTML = `
+                        <p class="mb-2"><strong>${species} - ${parameter}</strong></p>
+                        ${statsHtml}
+                    `;
+
+          // 更新选择的数据标签
+          updateSelectedDataBadges();
+        }
+      })
+      .catch(error => console.error('加载鱼类数据出错:', error));
+  }
+
+  // 更新已选择的数据标签
+  function updateSelectedDataBadges() {
+    const badgesContainer = document.getElementById('selected-data-badges');
+    badgesContainer.innerHTML = '';
+
+    if (selectedWaterData) {
+      const waterBadge = document.createElement('div');
+      waterBadge.className = 'data-badge';
+      waterBadge.innerHTML = `
+                <i class="fas fa-water"></i> 
+                ${selectedWaterData.station} - ${selectedWaterData.parameter}
+            `;
+      badgesContainer.appendChild(waterBadge);
+    }
+
+    if (selectedFishData) {
+      const fishBadge = document.createElement('div');
+      fishBadge.className = 'data-badge';
+      fishBadge.innerHTML = `
+                <i class="fas fa-fish"></i> 
+                ${selectedFishData.species} - ${selectedFishData.parameter}
+            `;
+      badgesContainer.appendChild(fishBadge);
+    }
+  }
+
+  // 发送消息到AI
+  function sendMessage() {
+    const inputElement = document.getElementById('chat-input');
+    const message = inputElement.value.trim();
+
+    if (!message) {
+      return;
+    }
+
+    // 清空输入框
+    inputElement.value = '';
+
+    // 添加用户消息到聊天区域
+    addMessage(message, 'user');
+
+    // 准备发送给AI的数据
+    const requestData = {
+      message: message,
+      selectedData: {},
+      stream: true  // 请求流式输出
+    };
+
+    if (selectedWaterData) {
+      requestData.selectedData.waterData = selectedWaterData;
+    }
+
+    if (selectedFishData) {
+      requestData.selectedData.fishData = selectedFishData;
+    }
+
+    // 为AI回复创建一个空消息容器
+    const aiMessageElement = document.createElement('div');
+    aiMessageElement.className = 'message assistant-message';
+    aiMessageElement.id = 'current-ai-message';
+    document.getElementById('chat-container').appendChild(aiMessageElement);
+
+    // 滚动到底部
+    scrollToBottom();
+
+    // 使用fetch API发送请求并处理流式响应
+    fetch('/it_center/api/chat', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(requestData)
+    })
+      .then(response => {
+        if (!response.ok) {
+          throw new Error(`HTTP错误! 状态: ${response.status}`);
+        }
+
+        // 创建一个文本解码器
+        const decoder = new TextDecoder();
+        // 创建一个reader来读取流
+        const reader = response.body.getReader();
+
+        // 开始读取流
+        let receivedText = '';
+
+        function readStream() {
+          return reader.read().then(({ done, value }) => {
+            if (done) {
+              // 流结束，更新ID
+              const currentMessage = document.getElementById('current-ai-message');
+              if (currentMessage) {
+                currentMessage.id = '';
+              }
+              return;
+            }
+
+            // 解码新收到的内容
+            const chunk = decoder.decode(value, { stream: true });
+
+            // 处理当前块中的所有行
+            const lines = chunk.split("\n");
+            lines.forEach(line => {
+              if (line.trim() !== '') {
+                try {
+                  const data = JSON.parse(line);
+
+                  if (data.type === 'content') {
+                    // 追加内容增量
+                    receivedText += data.content;
+                    const formattedText = receivedText.replace(/\n/g, '<br>');
+
+                    const currentMessage = document.getElementById('current-ai-message');
+                    if (currentMessage) {
+                      currentMessage.innerHTML = formattedText;
+                      scrollToBottom();
+                    }
+                  } else if (data.type === 'error') {
+                    // 显示错误
+                    const currentMessage = document.getElementById('current-ai-message');
+                    if (currentMessage) {
+                      currentMessage.innerHTML = `<span style="color: red;">错误: ${data.content}</span>`;
+                      currentMessage.id = '';
+                    }
+                  }
+                } catch (e) {
+                  console.error('解析响应时出错:', e, line);
+                }
+              }
+            });
+
+            // 继续读取下一块
+            return readStream();
+          });
+        }
+
+        // 开始读取流
+        return readStream();
+      })
+      .catch(error => {
+        console.error('AI请求出错:', error);
+
+        // 显示错误消息
+        const currentMessage = document.getElementById('current-ai-message');
+        if (currentMessage) {
+          currentMessage.innerHTML = '很抱歉，与AI服务通信时出现错误。请稍后再试。';
+          currentMessage.id = '';
+        }
+
+        // 滚动到底部
+        scrollToBottom();
+      });
+  }
+
+  // 添加消息到聊天区域
+  function addMessage(text, sender) {
+    const container = document.getElementById('chat-container');
+    const messageElement = document.createElement('div');
+
+    messageElement.className = `message ${sender}-message`;
+
+    // 处理换行和格式化
+    const formattedText = text.replace(/\n/g, '<br>');
+    messageElement.innerHTML = formattedText;
+
+    container.appendChild(messageElement);
+
+    // 滚动到底部
+    scrollToBottom();
+  }
+
+  // 滚动聊天区域到底部
+  function scrollToBottom() {
+    const container = document.getElementById('chat-container');
+    container.scrollTop = container.scrollHeight;
+  }
+
+  // 格式化数字
+  function formatNumber(num) {
+    if (num === undefined || num === null) {
+      return 'N/A';
+    }
+    return Number(num).toFixed(2);
+  }
+</script>
+{% endblock javascripts %}

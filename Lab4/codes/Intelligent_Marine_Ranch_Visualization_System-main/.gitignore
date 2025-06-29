@@ -1,0 +1,43 @@
+# byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+
+# tests and coverage
+*.pytest_cache
+.coverage
+
+# database & logs
+*.db
+*.sqlite3
+*.log
+
+# venv
+env
+venv
+
+# other
+.DS_Store
+
+# sphinx docs 
+_build
+_static
+_templates
+
+# javascript
+package-lock.json
+.vscode/symbols.json
+
+apps/static/assets/node_modules
+apps/static/assets/yarn.lock
+apps/static/assets/.temp
+
+README_bk.md
+
+# 忽略所有 .pyc 文件
+**/*.pyc
+
+# 忽略所有 __pycache__ 目录
+**/__pycache__/
+
+# 忽略 SQLite 数据库文件
+db.sqlite3
